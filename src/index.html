@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CriS Recorder</title>
+    <link rel="stylesheet" href="bulma.min.css">
+    <script defer src="render.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <video></video>
+      <br>
+
+      <button id="startBtn" class="button is-primary is-hidden">Start recording</button>
+      <button id="stopBtn" class="button is-warning is-hidden">Stop recording</button>
+
+      <hr>
+
+      <h3>Select recording source:</h3>
+      <div id="divsources"></div>
+      <br>
+      <button id="videoSelectBtn" class="button is-success">Refresh video source</button>
+
+    </div>
+  </body>
+</html>
