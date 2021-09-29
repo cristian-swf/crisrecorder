@@ -8,7 +8,7 @@ const stopBtn = document.getElementById('stopBtn');
 const videoSelectBtn = document.getElementById('videoSelectBtn');
 videoSelectBtn.onclick = getVideoSources;
 const divsources = document.getElementById('divsources')
-const mediaRecorder;
+var mediaRecorder;
 const recorderChunks = [];
 
 async function getVideoSources()
