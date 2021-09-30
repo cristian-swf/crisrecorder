@@ -8,7 +8,7 @@
   </head>
   <body>
     <div class="container">
-      <video></video>
+      <video muted></video>
       <br>
 
       <button id="startBtn" class="button is-primary is-hidden">Start recording</button>
@@ -16,10 +16,21 @@
 
       <hr>
 
-      <h3>Select recording source:</h3>
-      <div id="divsources"></div>
-      <br>
-      <button id="videoSelectBtn" class="button is-success">Refresh video source</button>
+      <div class="columns">
+        <div class="column">
+          <h3>Select recording source:</h3>
+          <div id="divsources"></div>
+        </div>
+        
+        <div class="column">
+          <h3>Options</h3>
+          <label class="checkbox">
+           <input type="checkbox" id="sound" value="yes">
+           Record sound
+          </label>
+        </div>
+
+      </div>
 
     </div>
   </body>

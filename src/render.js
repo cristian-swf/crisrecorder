@@ -1,15 +1,15 @@
 const { desktopCapturer, remote } = require('electron');
 const { writeFile } = require('fs');
-const {dialog} = require('@electron/remote')
+const {dialog}      = require('@electron/remote')
 
-const videoElement = document.querySelector('video');
-const startBtn = document.getElementById('startBtn');
-const stopBtn = document.getElementById('stopBtn');
-const videoSelectBtn = document.getElementById('videoSelectBtn');
-videoSelectBtn.onclick = getVideoSources;
-const divsources = document.getElementById('divsources')
+const videoElement  = document.querySelector('video');
+const startBtn      = document.getElementById('startBtn');
+const stopBtn       = document.getElementById('stopBtn');
+const divsources    = document.getElementById('divsources');
+const recordSound   = document.getElementById('sound');
 var mediaRecorder;
-const recorderChunks = [];
+var recorderChunks  = [];
+var currentSelectedSource;
 
 async function getVideoSources()
 {
@@ -21,7 +21,7 @@ async function getVideoSources()
     
     inputSources.map(source => 
             {
-                sc+='<label class="radio"> <input id="videoSource" class="radiobtn" type="radio" name="videoSource" value="' + source.id + '"> ' + source.name + ' </label><br>';
+                sc+='<label class="radio"> <input id="videoSource" class="radiobtn" type="radio" name="videoSource" value="' + source.id + '" ' + (source.id===currentSelectedSource?'checked':'') + '> ' + source.name + ' </label><br>';
             });
     
     sc = sc + "</div></div>";        
@@ -41,9 +41,11 @@ document.getElementById("divsources").addEventListener('click', function (event)
 //when a video source is clicked
 async function selectSource(source)
 {
+    currentSelectedSource = source;
+
     const constraints = 
     {
-        audio: false,
+        audio: recordSound.checked?{ mandatory: { chromeMediaSource: 'desktop' } }:recordSound.checked,
         video: {
             mandatory: { 
                 chromeMediaSource: 'desktop', 
@@ -51,6 +53,8 @@ async function selectSource(source)
             }
         }
     };
+
+    console.log(constraints);
 
     //create the stream
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -67,7 +71,7 @@ async function selectSource(source)
     mediaRecorder.onstop = handleStop;
 
     //activate start recording button
-    startBtn.classList.toggle('is-hidden');
+    startBtn.classList.remove('is-hidden');
 }
 
 function handleDataAvailable(e)
@@ -87,16 +91,24 @@ async function handleStop(e)
     const buffer = Buffer.from(await blob.arrayBuffer());
 
     //get save path
-    const { filePath } = await dialog.showSaveDialog(
+    const { filePath, canceled } = await dialog.showSaveDialog(
         {
             buttonLabel: 'Save video',
             defaultPath: `record_${Date.now()}.webm`
         });
 
-    console.log('Saving video to: ' +filePath);
+    if(canceled)
+    {
+        alert('Video saving canceled!')
+    }    
+    else
+    {
+        console.log('Saving video to: ' + filePath);
 
-    //save to file
-    writeFile(filePath, buffer, () => alert('File saved!'));
+        //save to file
+        writeFile(filePath, buffer, () => alert('File saved!'));
+        recorderChunks = [];
+    }
 }
 
 //stop button click
@@ -109,7 +121,7 @@ stopBtn.onclick = e =>
     startBtn.innerText = 'Start recording';
 
     //hide stop button
-    stopBtn.classList.toggle('is-hidden');
+    stopBtn.classList.add('is-hidden');
 };
 
 startBtn.onclick = e => 
@@ -118,11 +130,12 @@ startBtn.onclick = e =>
   mediaRecorder.start();
 
   startBtn.classList.add('is-danger');
-  startBtn.innerText = 'Recording';
+  startBtn.innerText = 'Recording...';
 
   //hide stop button
-  stopBtn.classList.toggle('is-hidden');
+  stopBtn.classList.remove('is-hidden');
 };
 
 //run on app launch
 getVideoSources();
+window.setInterval( () => getVideoSources(), 1000);
